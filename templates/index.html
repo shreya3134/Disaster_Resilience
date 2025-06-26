@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Disaster Resilience - Image Analysis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 18px;
+            background: #eef3f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: #1e3799;
+            padding: 25px 20px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        header h1 {
+            font-size: 36px;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.07);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 25px;
+            color: #2c3e50;
+        }
+
+        input[type="file"] {
+            padding: 12px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            background: #f5f7fa;
+            width: 70%;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"]:hover {
+            border-color: #1e3799;
+        }
+
+        button {
+            background-color: #0c2461;
+            color: white;
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #1e3799;
+        }
+
+        .prediction-box {
+            margin: 30px auto 40px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #2c3e50;
+            background: #ecf0f1;
+            padding: 18px 25px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .images {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .images div {
+            flex: 1 1 45%;
+            margin: 15px;
+            text-align: center;
+        }
+
+        .images img {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        .info-section {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .info-card {
+            background: #f9f9f9;
+            border-left: 6px solid #1e3799;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+            text-align: left;
+            font-size: 18px;
+            margin-bottom: 40px;
+        }
+
+        .info-card h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #1e3799;
+            font-size: 22px;
+        }
+
+        .info-card p {
+            margin: 10px 0;
+        }
+
+        .error {
+            color: #d63031;
+            font-weight: bold;
+            margin-top: 30px;
+        }
+
+        .summary-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        .small-card {
+            width: 90%;
+            max-width: 650px;
+            font-size: 18px;
+            padding: 25px;
+        }
+
+        footer {
+            margin-top: 60px;
+            text-align: center;
+            background: #1e3799;
+            color: white;
+            padding: 20px 0;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .images div, .summary-section {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            input[type="file"] {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1><i class="fas fa-water"></i> Disaster Resilience</h1>
+</header>
+
+<main>
+    <h2><i class="fas fa-cloud-upload-alt"></i> Upload Aerial Image</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="image" accept="image/*" required><br>
+        <button type="submit"><i class="fas fa-play-circle"></i> Analyze Image</button>
+    </form>
+
+    {% if prediction %}
+        <div class="prediction-box">
+            <i class="fas fa-exclamation-circle"></i> Prediction: {{ prediction }}
+        </div>
+
+        <div class="images">
+            <div style="flex: 1 1 30%;">
+                <h3>Uploaded Image</h3>
+                <img src="{{ url_for('static', filename='uploads/' + filename) }}" alt="Uploaded Image" style="max-width: 300px;">
+            </div>
+            <div style="flex: 1 1 65%;">
+    <h3>Segmentation Result</h3>
+    <img src="{{ url_for('static', filename=result_img) }}"
+         alt="Segmentation Result"
+         style="max-width: 700px; width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.15);">
+</div>
+
+        </div>
+    {% endif %}
+
+    {% if show_card %}
+        <div class="summary-section">
+            <div class="info-card small-card">
+                <h3>Object Count Summary</h3>
+                <p>🏠 <strong>Buildings</strong>: 11</p>
+                <p>🌿 <strong>Vegetation</strong>: 21</p>
+                <p>💧 <strong>Water</strong>: 2</p>
+                <p>🛣️ <strong>Roads</strong>: 1</p>
+                <p>🚗 <strong>Vehicles</strong>: 0</p>
+            </div>
+            <div class="info-card small-card">
+                <h3>Object Distribution</h3>
+                <img src="{{ url_for('static', filename='results/pie_chart.png') }}"
+                     alt="Pie Chart"
+                     style="max-width: 500px; width: 100%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+            </div>
+        </div>
+    {% endif %}
+
+    {% if error %}
+        <p class="error"><i class="fas fa-times-circle"></i> {{ error }}</p>
+    {% endif %}
+</main>
+
+<footer>
+    &copy; 2025 Disaster Resilience Dashboard
+</footer>
+
+</body>
+</html>
